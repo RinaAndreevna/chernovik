@@ -1,0 +1,5 @@
+V = '5.131'
+
+group_token = 'e76931e52cabafb0dfffee99044446bac6ecb4f1e8bbdf30e20105de194ed1ef43ba7de5b2f443902d145'
+
+user_token = 'q6oqls7OZiGMyKhZANgjFb99LETItkPHbE-fhneyR0cCxgd-vpBwo2VED2yTzuLUR4plJlCSeflE1q1MAxHaDAZX3FF0FF70k3oCldQcPgahZqyfy4BfhEYfRpv2OQJXZ4TCmmETn3Ksl5cxwqCjvcUR6SLVr-c3fcPA4LPyyocgHqqDk3QhbhPGeYEquMJZ'
