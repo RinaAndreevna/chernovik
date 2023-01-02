@@ -1,80 +1,150 @@
-import pytest
+import vk_api
 
-from vk_functions import search_users, get_photo, sort_likes, write_msg, register_user, add_user, add_user_photos, \
+import time
 
-    add_to_black_list
+vk = vk_api.VkApi(token='community token')
 
-class TestVkinder:
+long_poll = vk.method('messages.getLongPollServer', {'need_pts': 1})
 
-    def setup_class(self):
+server, key, pts = long_poll['server'], long_poll['key'], long_poll['pts']
 
-        print('method setup_class')
+while True:
 
-    def setup(self):
+    long_poll = vk.method('messages.getLongPollHistory', {
 
-        print('method setup')
+        'pts': pts,
 
-    def teardown(self):
+        'preview_length': 0,
 
-        print('method teardown')
+        'history_length': 1,
 
-    """ 
+        'onlines': 1,
 
-    Тесты по работе приложения
+        'fields': 'city,relation,sex,age',
 
-    """
+        'events_limit': 1000,
 
-    # Проверка поиска анкет
+        'server': server,
 
-    @pytest.mark.parametrize('sex, age_at, age_to, city, result', [
+        'key': key
 
-        ('1', '18', '21', 'Москва', True)])
+    })
 
-    def test_search_users(self, sex, age_at, age_to, city, result):
+    updates = long_poll['updates']
 
-        assert search_users(sex, age_at, age_to, city) == result
+    for update in updates:
 
-    # Тест поиска фотографий
+        if update[0] == 4:
 
-    @pytest.mark.parametrize('user_id, result', [('336261034', True)])
+            user_id = update[3]
 
-    def test_get_photo(self, user_id, result):
+            body = update[5]
 
-        assert get_photo(user_id) == result
+            if body[0] == '/':
 
-    # Тест сортировки по лайкам
+                cmd, *args = body[1:].split()
 
-    @pytest.mark.parametrize('list_photos, result',
+                if cmd == 'начать':
 
-                             [(['1', 'photo_1', '2', 'photo_2', '3', 'photo_3'],
+                    vk.method('messages.send', {
 
-                               ['1', '2', '3', 'photo_1', 'photo_2', 'photo_3']), ])
+                        'peer_id': user_id,
 
-    def test_sort_likes(self, list_photos, result):
+                        'message': 'Привет! Как я могу тебе помочь?'
 
-        assert sort_likes(list_photos) == result
+                    })
 
-    """ 
+                elif cmd == 'поиск':
 
-    Тесты по работе Базы данных
+                    gender = None
 
-    """
+                    age = None
 
-    # Тест первичной регистрации юзера
+                    city = None
 
-    @pytest.mark.parametrize('vk_id, result', [('1', False), ('1', False), ('336261034', False)])
+                    relation = None
 
-    def test_register_user(self, vk_id, result):
+                    user_info = vk.method('users.get', {'user_ids': user_id})[0]
 
-        assert register_user(vk_id) == result
+#                     if 'sex' in user_info:
 
-    # Тест добавление пользователя
+#                         gender = 'мужской' if user_info['sex'] == 2 else 'женский'
 
-    @pytest.mark.parametrize('event_id, vk_id, first_name, second_name, city, link, id_user, result',
+                    gender = None
 
-                             [('7717001', '2', 'goga', 'boba', 'Turkey', 'www.vkman.ru', '1', False)])
+                    if 'age' in user_info:
 
-    def test_add_user(self, event_id, vk_id, first_name, second_name, city, link, id_user, result):
+                        age = user_info['age']
 
-        assert add_user(event_id, vk_id, first_name, second_name, city, link, id_user) == result
+                    if 'city' in user_info:
 
+                        city = user_info['city']['id']
+
+                    if 'relation' in user_info:
+
+                        relation = user_info['relation']
+
+                    if not gender:
+
+                        vk.method('messages.send', {
+
+                            'peer_id': user_id,
+
+                            'message': 'Какого пола ты ищешь? Введи "мужской" или "женский".'
+
+                        })
+
+                        continue
+
+                    if not age:
+
+                        vk.method('messages.send', {
+
+                            'peer_id': user_id,
+
+                            'message': 'Какого возраста ты ищешь?'
+
+                        })
+
+                        continue
+
+                    if not city:
+
+                        vk.method('messages.send', {
+
+                           
+
+                            'peer_id': user_id,
+
+                            'message': 'В каком городе ты ищешь?'
+
+                        })
+
+                        continue
+
+                    params = {'count': 10, 'fields': 'city,relation'}
+
+                    params['sex'] = 1 if gender == 'мужской' else 2
+
+                    params['age_from'] = age
+
+                    params['age_to'] = age
+
+                    params['city'] = city
+
+                    params['status'] = 6 if relation == 'замужем' else 1
+
+                    response = vk.method('users.search', params)
+
+                    vk.method('messages.send', {
+
+                        'peer_id': user_id,
+
+                        'message': response
+
+                    })
+
+    pts += len(updates)
+
+    time.sleep(0.5)
+         
