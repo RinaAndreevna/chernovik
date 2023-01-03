@@ -1,77 +1,70 @@
-import vk_api
-import time
+import pytest
+from vk_functions import search_users, get_photo, sort_likes, write_msg, register_user, add_user, add_user_photos, \
+    add_to_black_list
 
-vk = vk_api.VkApi(token='community token')
-long_poll = vk.method('messages.getLongPollServer', {'need_pts': 1})
-server, key, pts = long_poll['server'], long_poll['key'], long_poll['pts']
 
-while True:
-    long_poll = vk.method('messages.getLongPollHistory', {
-        'pts': pts,
-        'preview_length': 0,
-        'history_length': 1,
-        'onlines': 1,
-        'fields': 'city,relation,sex,age',
-        'events_limit': 1000,
-        'server': server,
-        'key': key
-    })
-    updates = long_poll['updates']
-    for update in updates:
-        if update[0] == 4:
-            user_id = update[3]
-            body = update[5]
-            if body[0] == '/':
-                cmd, *args = body[1:].split()
-                if cmd == 'начать':
-                    vk.method('messages.send', {
-                        'peer_id': user_id,
-                        'message': 'Привет! Как я могу тебе помочь?'
-                    })
-                elif cmd == 'поиск':
-                    gender = None
-                    age = None
-                    city = None
-                    relation = None
-                    user_info = vk.method('users.get', {'user_ids': user_id})[0]
-#                     if 'sex' in user_info:
-#                         gender = 'мужской' if user_info['sex'] == 2 else 'женский'
-                    gender = None
-                    if 'age' in user_info:
-                        age = user_info['age']
-                    if 'city' in user_info:
-                        city = user_info['city']['id']
-                    if 'relation' in user_info:
-                        relation = user_info['relation']
-                    if not gender:
-                        vk.method('messages.send', {
-                            'peer_id': user_id,
-                            'message': 'Какого пола ты ищешь? Введи "мужской" или "женский".'
-                        })
-                        continue
-                    if not age:
-                        vk.method('messages.send', {
-                            'peer_id': user_id,
-                            'message': 'Какого возраста ты ищешь?'
-                        })
-                        continue
-                    if not city:
-                        vk.method('messages.send', {
-                           
-                            'peer_id': user_id,
-                            'message': 'В каком городе ты ищешь?'
-                        })
-                        continue
-                    params = {'count': 10, 'fields': 'city,relation'}
-                    params['sex'] = 1 if gender == 'мужской' else 2
-                    params['age_from'] = age
-                    params['age_to'] = age
-                    params['city'] = city
-                    params['status'] = 6 if relation == 'замужем' else 1
-                    response = vk.method('users.search', params)
-                    vk.method('messages.send', {
-                        'peer_id': user_id,
-                        'message': response
-                    })
-    pts += len(updates)
-    time.sleep(0.5)
+class TestVkinder:
+
+    def setup_class(self):
+        print('method setup_class')
+
+    def setup(self):
+        print('method setup')
+
+    def teardown(self):
+        print('method teardown')
+
+    """ 
+    Тесты по работе приложения
+    """
+
+    # Проверка поиска анкет
+    @pytest.mark.parametrize('sex, age_at, age_to, city, result', [
+        ('1', '18', '21', 'Москва', True)])
+    def test_search_users(self, sex, age_at, age_to, city, result):
+        assert search_users(sex, age_at, age_to, city) == result
+
+    # Тест поиска фотографий
+    @pytest.mark.parametrize('user_id, result', [('336261034', True)])
+    def test_get_photo(self, user_id, result):
+        assert get_photo(user_id) == result
+
+    # Тест сортировки по лайкам
+    @pytest.mark.parametrize('list_photos, result',
+                             [(['1', 'photo_1', '2', 'photo_2', '3', 'photo_3'],
+                               ['1', '2', '3', 'photo_1', 'photo_2', 'photo_3']), ])
+    def test_sort_likes(self, list_photos, result):
+        assert sort_likes(list_photos) == result
+
+    """ 
+    Тесты по работе Базы данных
+    """
+
+    # Тест первичной регистрации юзера
+    @pytest.mark.parametrize('vk_id, result', [('1', False), ('1', False), ('336261034', False)])
+    def test_register_user(self, vk_id, result):
+        assert register_user(vk_id) == result
+
+    # Тест добавление пользователя
+    @pytest.mark.parametrize('event_id, vk_id, first_name, second_name, city, link, id_user, result',
+                             [('7717001', '2', 'goga', 'boba', 'Turkey', 'www.vkman.ru', '1', False)])
+    def test_add_user(self, event_id, vk_id, first_name, second_name, city, link, id_user, result):
+        assert add_user(event_id, vk_id, first_name, second_name, city, link, id_user) == result
+
+    # Тест добавление фото анкеты в БД
+    @pytest.mark.parametrize('event_id, link_photo, count_likes, id_dating_user, result',
+                             [('123', 'link_link', '2', '33502052', False)])
+    def test_add_user_photos(self, event_id, link_photo, count_likes, id_dating_user, result):
+        assert add_user_photos(event_id, link_photo, count_likes, id_dating_user) == result
+
+    # Добавление в черный список
+    @pytest.mark.parametrize(
+        'event_id, vk_id, first_name, second_name, city, link, link_photo, count_likes, id_user, result',
+        [('123', '12', '12434', '1251231', 'sdfsdfs', 'sfsdfsdfds', 'fsdfsdfs', '12', '123', False)])
+    def test_add_user_to_black_list(self, event_id, vk_id, first_name, second_name, city, link, link_photo, count_likes,
+                                    id_user, result):
+        assert add_to_black_list(event_id, vk_id, first_name, second_name, city, link, link_photo, count_likes,
+                                 id_user) == result
+
+    def teardown_class(self):
+        print('method teardown_class')
