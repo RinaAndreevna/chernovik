@@ -7,6 +7,8 @@ from vk_api.exceptions import ApiError
 from models import engine, Base, Session, User, DatingUser, Photos, BlackList
 from sqlalchemy.exc import IntegrityError, InvalidRequestError
 
+token = input('Token: ')
+
 # Для работы с ВК
 vk = vk_api.VkApi(token=group_token)
 longpoll = VkLongPoll(vk)
