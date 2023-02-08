@@ -27,8 +27,14 @@ connection = engine.connect()
 class User(Base):
     __tablename__ = 'user'
     id = sq.Column(sq.Integer, primary_key=True, autoincrement=True)
+    id = sq.Column(sq.Integer, primary_key=True)
+    
     vk_id = sq.Column(sq.Integer, unique=True)
-
+    first_name = sq.Column(sq.VARCHAR(1500))
+    last_name = sq.Column(sq.VARCHAR(50))
+    age = sq.Column(sq.SmallInteger)
+    sex_id = sq.Column(sq.SmallInteger)
+    city_id = sq.Column(sq.VARCHAR(25))
 
 # Анкеты добавленные в избранное
 class DatingUser(Base):
