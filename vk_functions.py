@@ -20,36 +20,30 @@ connection = engine.connect()
 """ 
 ФУНКЦИИ ПОИСКА
 """
-
-
 # Ищет людей по критериям
-def search_users(sex, age_at, age_to, city):
-    all_persons = []
-    link_profile = 'https://vk.com/id'
-    vk_ = vk_api.VkApi(token=user_token)
-    try:
-        response = vk_.method('users.search',
-                              {'sort': 1,
-                               'sex': sex,
-                               'status': 1,
-                               'age_from': age_at,
-                               'age_to': age_to,
-                               'has_photo': 1,
-                               'count': 25,
-                               'online': 1,
-                               'hometown': city
-                               })
-    except ApiError:
-        return "ошибка получения пользователей"
-    for element in response['items']:
-        person = [
-            element['first_name'],
-            element['last_name'],
-            link_profile + str(element['id']),
-            element['id']
-        ]
-        all_persons.append(person)
-    return all_persons
+def find_info(session, user_id):
+    search_data = vk.users.get(user_ids=user_id, fields='sex, home_town, bdate')
+    user_age = int(search_data[0]['bdate'][-4:])
+    user_name = f"{search_data[0]['first_name']} {search_data[0]['last_name']}"
+    user_city = search_data[0]['home_town']
+    insert_user(session=session, vk_id=str(user_id), name=user_name, age=user_age, city=user_city, sex=search_data[0]['sex'])
+    inquiry = vk.users.search(age_from=(datetime.datetime.now().year-5)-user_age, age_to=(datetime.datetime.now().year+5)-user_age, hometown=search_data[0]['home_town'], sex=3-search_data[0]['sex'], has_photo=1, count=25, is_closed=False, can_access_closed=True, deactivated=None)
+    candidates = []
+
+    for item in inquiry['items']:
+        candidate = {key: value for (key, value) in item.items() if
+                     key in ['id', 'first_name', 'last_name'] and not item['is_closed']}
+
+        if candidate:
+            candidates.append(candidate)
+        else:
+            continue
+
+    result = f'Советуем посмотреть на кандидатов:\n{candidates[0]["first_name"]} {candidates[0]["last_name"]}' \
+             f'\nid во Вконтакте: {candidates[0]["id"]}\n{candidates[1]["first_name"]} {candidates[1]["last_name"]}' \
+             f'\nid во Вконтакте: {candidates[1]["id"]}'
+
+    return result, candidates
     # return True
 
 
