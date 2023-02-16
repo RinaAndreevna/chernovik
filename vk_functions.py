@@ -10,7 +10,8 @@ from sqlalchemy.exc import IntegrityError, InvalidRequestError
 token = input('Token: ')
 
 # Для работы с ВК
-vk = vk_api.VkApi(token=group_token)
+vk_session = vk_api.VkApi(token=TOKEN)
+vk = vk_session.get_api()
 longpoll = VkLongPoll(vk)
 # Для работы с БД
 session = Session()
