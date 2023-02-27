@@ -21,7 +21,7 @@ connection = engine.connect()
 ФУНКЦИИ ПОИСКА
 """
 # Ищет людей по критериям
-def find_info(session, user_id):
+def search_users(session, user_id):
     search_data = vk.users.get(user_ids=user_id, fields='sex, home_town, bdate')
     user_age = int(search_data[0]['bdate'][-4:])
     user_name = f"{search_data[0]['first_name']} {search_data[0]['last_name']}"
