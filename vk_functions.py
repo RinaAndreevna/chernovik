@@ -91,7 +91,7 @@ def sort_likes(photos):
     return sorted(result)
 
 
-# JSON file create with result of programm
+#  JSON file create with result of programm
 def json_create(lst):
     today = datetime.date.today()
     today_str = f'{today.day}.{today.month}.{today.year}'
