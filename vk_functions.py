@@ -6,6 +6,8 @@ from vk_config import group_token, user_token, V
 from vk_api.exceptions import ApiError
 from models import engine, Base, Session, User, DatingUser, Photos, BlackList
 from sqlalchemy.exc import IntegrityError, InvalidRequestError
+from SQL_func import insert_user
+
 
 token = input('Token: ')
 
