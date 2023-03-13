@@ -1,9 +1,10 @@
 import vk_api
+import datetime
 from vk_api.longpoll import VkLongPoll, VkEventType
 from vk_functions import search_users, get_photo, sort_likes, json_create
 from models import engine, Session, write_msg, register_user, add_user, add_user_photos, add_to_black_list, \
     check_db_user, check_db_black, check_db_favorites, check_db_master, delete_db_blacklist, delete_db_favorites
-from vk_config import group_token
+
 
 # Для работы с вк_апи
 vk = vk_api.VkApi(token=group_token)
