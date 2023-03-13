@@ -116,7 +116,7 @@ if __name__ == '__main__':
                     age = int(user.age)
                     age_from = age - 5
                     age_to = age + 5
-                   request_data = {
+                    request_data = {
                            "sex": sex_partner,  # пол партнера для поиска
                            "count": 1000,  # кол-во возвращаемых результатов
                            "offset": 0,  # сдвиг
