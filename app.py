@@ -106,19 +106,31 @@ if __name__ == '__main__':
             # Ищем партнера
             elif len(msg_text) > 1:
                 sex = 0
-                if msg_text[0:7].lower() == 'девушка':
-                    sex = 1
-                elif msg_text[0:7].lower() == 'мужчина':
-                    sex = 2
-                age_at = msg_text[8:10]
-                if int(age_at) < 18:
-                    write_msg(user_id, 'ай яй яй, Выставлен минимальный возраст - 18 лет.')
-                    age_at = 18
-                age_to = msg_text[11:14]
-                if int(age_to) >= 100:
-                    write_msg(user_id, 'ой ёй ёй, выставлено максимальное значение 99 лет.')
-                    age_to = 99
-                city = msg_text[14:len(msg_text)].lower()
+                if user.sex == 1:
+                    sex_partner = 2
+                 else:
+                     sex_partner = 1
+                      # Город пользователя
+                    city_id = user.city_id
+                      # Возраст партнера
+                    age = int(user.age)
+                    age_from = age - 5
+                    age_to = age + 5
+                   request_data = {
+                           "sex": sex_partner,  # пол партнера для поиска
+                           "count": 1000,  # кол-во возвращаемых результатов
+                           "offset": 0,  # сдвиг
+                           "city": city_id,
+                           "status": 6,  # в активном поиске
+                           "age_from": age_from,  # возрат "от"
+                           "age_to": age_to,  # возраст "до"
+                           "has_photo": 1,  # у пользователя есть фотографии
+        # параметры, которые должен вернуть АПИ контакта о пользователях
+                           "fields": {
+                              "first_name", "last_name", "city", "bdate",
+        }
+    }
+    return request_data
                 # Ищем анкеты
                 result = search_users(sex, int(age_at), int(age_to), city)
                 json_create(result)
