@@ -109,29 +109,29 @@ if __name__ == '__main__':
                 sex = 0
                 if user.sex == 1:
                     sex_partner = 2
-                 else:
-                     sex_partner = 1
-                      # Город пользователя
-                    city_id = user.city_id
+                else:
+                    sex_partner = 1
+                    # Город пользователя
+                city_id = user.city_id
                       # Возраст партнера
-                    age = int(user.age)
-                    age_from = age - 5
-                    age_to = age + 5
-                    request_data = {
-                           "sex": sex_partner,  # пол партнера для поиска
-                           "count": 1000,  # кол-во возвращаемых результатов
-                           "offset": 0,  # сдвиг
-                           "city": city_id,
-                           "status": 6,  # в активном поиске
-                           "age_from": age_from,  # возрат "от"
-                           "age_to": age_to,  # возраст "до"
-                           "has_photo": 1,  # у пользователя есть фотографии
-        # параметры, которые должен вернуть АПИ контакта о пользователях
-                           "fields": {
+                age = int(user.age)
+                age_from = age - 5
+                age_to = age + 5
+                request_data = {
+                    "sex": sex_partner,  # пол партнера для поиска
+                    "count": 1000,  # кол-во возвращаемых результатов
+                    "offset": 0,  # сдвиг
+                    "city": city_id,
+                    "status": 6,  # в активном поиске
+                    "age_from": age_from,  # возрат "от"
+                    "age_to": age_to,  # возраст "до"
+                    "has_photo": 1,  # у пользователя есть фотографии
+                      # параметры, которые должен вернуть АПИ контакта о пользователях
+                    "fields": {
                               "first_name", "last_name", "city", "bdate",
-        }
-    }
-    return request_data
+                    }
+                }    
+                return request_data
                 # Ищем анкеты
                 result = search_users(sex, int(age_at), int(age_to), city)
                 json_create(result)
