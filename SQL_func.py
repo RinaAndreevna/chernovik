@@ -2,12 +2,15 @@ import sqlalchemy
 import datetime
 from sqlalchemy.orm import sessionmaker
 
-from models import Users, Candidates, Photos
+from models import User, DatingUser, Photos
 from vk_config import DSN
 
 
 engine = sqlalchemy.create_engine(DSN)
 Session = sessionmaker(bind=engine)
+
+Users = User
+Candidates = DatingUser
 
 
 def insert_user(session, vk_id, name, age, city, sex):
