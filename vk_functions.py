@@ -12,7 +12,7 @@ from SQL_func import insert_user
 token = input('Token: ')
 
 # Для работы с ВК
-vk_session = vk_api.VkApi(token=TOKEN)
+vk_session = vk_api.VkApi(token=token)
 vk = vk_session.get_api()
 longpoll = VkLongPoll(vk)
 # Для работы с БД
