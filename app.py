@@ -129,7 +129,7 @@ if __name__ == '__main__':
                     "fields": {
                               "first_name", "last_name", "city", "bdate",
                     }
-                }    
+                }   
                 # Ищем анкеты
                 result = search_users(sex, int(age_at), int(age_to), city)
                 json_create(result)
