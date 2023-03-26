@@ -131,7 +131,6 @@ if __name__ == '__main__':
                               "first_name", "last_name", "city", "bdate",
                     }
                 }    
-                return request_data
                 # Ищем анкеты
                 result = search_users(sex, int(age_at), int(age_to), city)
                 json_create(result)
